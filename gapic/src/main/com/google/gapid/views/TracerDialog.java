@@ -995,6 +995,7 @@ public class TracerDialog {
     private final Tracer.TraceRequest request;
     private Label statusLabel;
     private Label bytesLabel;
+    private Label bitrateLabel;
     private Text errorText;
     private Button errorButton;
     private Label autoStartLabel;
@@ -1004,6 +1005,7 @@ public class TracerDialog {
     private StatusResponse status;
     private Throwable error;
     private long autoStartTime = -1;
+    private long lastCapturedBytes = 0;
     private boolean started = false;
 
     public TraceProgressDialog(
@@ -1056,6 +1058,10 @@ public class TracerDialog {
       bytesLabel = withLayoutData(createLabel(container, "0 Bytes"),
           new GridData(SWT.FILL, SWT.TOP, true, false));
 
+      createLabel(container, "Capture Bitrate:");
+      bitrateLabel = withLayoutData(createLabel(container, "0 Bytes/s"),
+          new GridData(SWT.FILL, SWT.TOP, true, false));
+
       errorText = withLayoutData(createTextbox(container, SWT.WRAP | SWT.READ_ONLY, ""),
           withIndents(withSpans(new GridData(SWT.FILL, SWT.TOP, true, false), 2, 1), 0, 10));
       errorText.setBackground(container.getBackground());
@@ -1089,6 +1095,12 @@ public class TracerDialog {
         } else {
           bytesLabel.setText(String.format("%.2f GBytes", bytes / 1024.0 / 1024.0 / 1024.0));
         }
+
+        long bitrate = bytes - lastCapturedBytes;
+        String bitrateStr = String.format("%.2f MBytes/s", bitrate / 1024.0 / 1024.0);
+        bitrateLabel.setText(bitrateStr);
+        LOG.log(Level.INFO, "Capture Bitrate: {0}", bitrateStr);
+        lastCapturedBytes = bytes;
 
         if (request.delay > 0 && !started &&
             status.getStatus() == Service.TraceStatus.WaitingToStart) {
