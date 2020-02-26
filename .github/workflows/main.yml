@@ -1,0 +1,51 @@
+name: Build package for macOS
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: macos-latest
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Mount bazel cache
+      uses: actions/cache@v1
+      with:
+        path: "/home/runner/.cache/bazel"
+        key: bazel
+
+    - name: Install bazelisk
+      run: |
+        curl -LO "https://github.com/bazelbuild/bazelisk/releases/download/v1.3.0/bazelisk-darwin-amd64"
+        mkdir -p "${GITHUB_WORKSPACE}/bin/"
+        mv bazelisk-linux-amd64 "${GITHUB_WORKSPACE}/bin/bazel"
+        chmod +x "${GITHUB_WORKSPACE}/bin/bazel"
+        
+    - name: Install Java Development Kit 8
+      run: |
+        curl -LO "https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u242-b08/OpenJDK8U-jdk_x64_mac_hotspot_8u242b08.pkg"
+        installer -pkg OpenJDK8U-jdk_x64_mac_hotspot_8u242b08.pkg -target /
+        export JAVA_HOME=/Library/Java/JavaVirtualMachines/adoptopenjdk-8.jdk/Contents/Home
+        
+    - name: Install Android SDK and NDK
+      run: |
+        curl -LO "https://dl.google.com/android/repository/sdk-tools-darwin-3859397.zip"
+        mkdir -p "${GITHUB_WORKSPACE}/android/"
+        mv sdk-tools-darwin-3859397.zip ${GITHUB_WORKSPACE}/android/
+        cd ${GITHUB_WORKSPACE}/android/
+        unzip sdk-tools-darwin-3859397.zip
+        tools/bin/sdkmanager "platforms;android-26" "build-tools;29.0.2" ndk-bundle
+        export ANDROID_HOME=${GITHUB_WORKSPACE}/android/
+        export ANDROID_NDK_HOME=${GITHUB_WORKSPACE}/android/ndk-bundle
+        
+    - name: Increase the maximum number of OS file handles
+      run: |
+        sudo sysctl -w kern.maxfiles=122880
+        sudo sysctl -w kern.maxfilesperproc=102400
+        echo ulimit -S -n 102400 >> ~/.bashrc
+        
+    - name: Build
+      run: |
+        "${GITHUB_WORKSPACE}/bin/bazel" build pkg
