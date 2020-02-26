@@ -26,7 +26,7 @@ jobs:
     - name: Install Java Development Kit 8
       run: |
         curl -LO "https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u242-b08/OpenJDK8U-jdk_x64_mac_hotspot_8u242b08.pkg"
-        installer -pkg OpenJDK8U-jdk_x64_mac_hotspot_8u242b08.pkg -target /
+        sudo installer -pkg OpenJDK8U-jdk_x64_mac_hotspot_8u242b08.pkg -target /
         export JAVA_HOME=/Library/Java/JavaVirtualMachines/adoptopenjdk-8.jdk/Contents/Home
         
     - name: Install Android SDK and NDK
