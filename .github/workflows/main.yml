@@ -58,3 +58,11 @@ jobs:
     - name: Build
       run: |
         "${GITHUB_WORKSPACE}/bin/bazel" build pkg
+        
+    - name: Upload artifact
+      uses: actions/upload-artifact@v1.0.0
+      with:
+        # Artifact name
+        name: bin
+        # Directory containing files to upload
+        path: ${GITHUB_WORKSPACE}/bazel-bin
