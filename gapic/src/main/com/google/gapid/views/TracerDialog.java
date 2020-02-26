@@ -1096,11 +1096,13 @@ public class TracerDialog {
           bytesLabel.setText(String.format("%.2f GBytes", bytes / 1024.0 / 1024.0 / 1024.0));
         }
 
-        long bitrate = bytes - lastCapturedBytes;
-        String bitrateStr = String.format("%.2f MBytes/s", bitrate / 1024.0 / 1024.0);
-        bitrateLabel.setText(bitrateStr);
-        LOG.log(Level.INFO, "Capture Bitrate: {0}", bitrateStr);
-        lastCapturedBytes = bytes;
+        if (started) {
+          long bitrate = bytes - lastCapturedBytes;
+          String bitrateStr = String.format("%.2f MBytes/s", bitrate / 1024.0 / 1024.0);
+          bitrateLabel.setText(bitrateStr);
+          LOG.log(Level.INFO, "Capture Bitrate: {0}", bitrateStr);
+          lastCapturedBytes = bytes;
+        }
 
         if (request.delay > 0 && !started &&
             status.getStatus() == Service.TraceStatus.WaitingToStart) {
