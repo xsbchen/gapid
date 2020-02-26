@@ -36,6 +36,8 @@ jobs:
         mv sdk-tools-darwin-3859397.zip ${GITHUB_WORKSPACE}/android/
         cd ${GITHUB_WORKSPACE}/android/
         unzip sdk-tools-darwin-3859397.zip
+        export ANDROID_HOME=${GITHUB_WORKSPACE}/android/
+        export ANDROID_NDK_HOME=${GITHUB_WORKSPACE}/android/ndk-bundle
         mkdir licenses
         echo "24333f8a63b6825ea9c5514f83c2829b004d1fee\n" > licenses/android-sdk-license
         echo "84831b9409646a918e30573bab4c9c91346d8abd\n" > licenses/android-sdk-preview-license
@@ -44,9 +46,8 @@ jobs:
         echo "33b6a2b64607f11b759f320ef9dff4ae5c47d97a\n" > licenses/google-gdk-license
         echo "d975f751698a77b662f1254ddbeed3901e976f5a\n" > licenses/intel-android-extra-license
         echo "e9acab5b5fbb560a72cfaecce8946896ff6aab9d\n" > licenses/mips-android-sysimage-license
+        tools/bin/sdkmanager --licenses
         tools/bin/sdkmanager "platforms;android-26" "build-tools;29.0.2" ndk-bundle
-        export ANDROID_HOME=${GITHUB_WORKSPACE}/android/
-        export ANDROID_NDK_HOME=${GITHUB_WORKSPACE}/android/ndk-bundle
         
     - name: Increase the maximum number of OS file handles
       run: |
